@@ -30,6 +30,15 @@ class DailyViewSet(viewsets.ModelViewSet):
     queryset = Daily.objects.all()
     serializer_class = dailyserializer
 
+    @action(detail=False, methods=['get'])
+    def ratings(self, request):
+        queryset = Daily.objects.annotate(quarter=models.Avg(Daily.rating))
+        serializer_class = dailyserializer(queryset, many=True)
+        if queryset.count() == 0:
+            return Response({"rating": "No"})
+
+        return Response(serializer_class.data)
+
 
 class ThoughtsViewSet(viewsets.ModelViewSet):
     queryset = Thoughts.objects.all()
